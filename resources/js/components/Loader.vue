@@ -33,18 +33,18 @@ setInterval(() => {
     <div
         id="overlay"
         :class="{ 'visible': show, 'invisible': !show }"
-        class="d-flex flex-column align-items-center justify-content-center"
+        class="d-flex flex-column align-items-center justify-content-start"
     >
-        <div class="px-3 py-2 d-flex align-items-center bg-light shadow rounded">
+        <div class="px-3 py-2 d-flex align-items-center justify-content-center bg-light shadow w-100">
             <div class="spinner-border text-primary me-2" role="status">
                 <span class="visually-hidden">Loading...</span>
             </div>
-            {{ heading }}<span>...</span>
+            <div>{{ heading }}<span>...</span></div>
         </div>
-        <div class="mt-4 w-75 text-center bg-primary text-light rounded">
-            <small>
+        <div class="px-3 py-2 text-center bg-success text-light w-100">
+            <span>
                 {{ quote }}
-            </small>
+            </span>
         </div>
     </div>
 </template>
@@ -59,7 +59,7 @@ setInterval(() => {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.7);
     z-index: 2;
     cursor: progress;
 }

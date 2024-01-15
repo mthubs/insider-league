@@ -1,3 +1,11 @@
 body {
     font-family: 'Poppins', sans-serif !important;
 }
+
+.text-prem {
+    color: #360c3a !important;
+}
+
+.bg-prem {
+    background-color: #360c3a !important;
+}

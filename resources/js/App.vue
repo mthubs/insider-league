@@ -1,43 +1,64 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import Loader from "./components/Loader.vue";
+import Header from "./components/Header.vue";
+import Home from "./components/Home.vue";
+import Fixtures from "./components/Fixtures.vue";
+import Simulation from "./components/Simulation.vue";
 
 const show = ref(false)
 const loaderHeading = ref('Loading')
+const simBrain = ref({
+    currentStep: ''
+})
 
-const toggleLoader = (text = 'Loading', timer = 3) => {
-    show.value = true
+const toggleLoader = (text = 'Loading', value) => {
+    show.value = value ?? !show.value
     loaderHeading.value = text
-    setTimeout(() => show.value = false, timer * 1000)
 }
+
+const generateFixtures = async () => {
+    toggleLoader('Generating fixtures')
+    const { data } = await axios.get('generate-fixtures')
+    simBrain.value.currentStep = data.step
+    toggleLoader()
+}
+
+const startSimulation = () => {
+    toggleLoader('Initiating Simulation')
+    setTimeout(() => {
+        simBrain.value.currentStep = 'VIEW_SIMULATION'
+        toggleLoader()
+    }, 2000)
+}
+
+const resetData = async () => {
+    const confirm = window.confirm('Are you sure you want to reset data?')
+    if (!confirm) return
+    toggleLoader('Flushing season data')
+    const { data } = await axios.delete('reset-data')
+    simBrain.value.currentStep = data.step
+    toggleLoader()
+}
+
+onMounted(async () => {
+    const { data } = await axios.get('app')
+    simBrain.value.currentStep = data.step
+})
+
 </script>
 
 <template>
     <Loader :show="show" :heading="loaderHeading" />
 
     <div class="container py-4">
-        <header class="pb-3 mb-4 border-bottom">
-            <div class="d-flex align-items-center">
-                <div class="me-2">
-                    <img src="/favicon.png" height="52" alt="prem icon">
-                </div>
-                <div>
-                    <h1 class="fs-4 mb-0 pb-0">Premier League</h1>
-                    <span>
-                        <small class="text-muted">Holders - Man City</small>
-                    </span>
-                </div>
-            </div>
-        </header>
+        <Header />
 
         <main>
-            <button
-                type="button"
-                @click="toggleLoader('Testing loader', 5)"
-                class="btn btn-success"
-            >
-                Counter is: {{ counter }}
-            </button>
+            <Home @generate-fixtures="generateFixtures" v-if="simBrain.currentStep === 'GENERATE_FIXTURES'" />
+            <Fixtures @start-simulation="startSimulation" v-if="simBrain.currentStep === 'VIEW_FIXTURES'" />
+            <Simulation @toggle-loader="toggleLoader" @reset-data="resetData" v-if="simBrain.currentStep === 'VIEW_SIMULATION'" />
         </main>
 
     </div>
